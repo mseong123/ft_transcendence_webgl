@@ -22,26 +22,24 @@ function loadShader(gl, shaderSource, shaderType) {
 
 
 function createShaderFromScript(gl, scriptId) {
-  let shaderSource = '';
-  let shaderType;
-  let shaderScript = document.getElementById(scriptId);
-  console.log("shaderScript",shaderScript);
-  if (!shaderScript) {
-	throw('*** Error: unknown script element ' + scriptId);
-  }
-  shaderSource = shaderScript.text;
-  console.log("shaderSource",shaderSource);
-  
+	let shaderSource = '';
+	let shaderType;
+	let shaderScript = document.getElementById(scriptId);
+	
+	if (!shaderScript) {
+		throw('*** Error: unknown script element ' + scriptId);
+	}
+	shaderSource = shaderScript.text;
 
-if (shaderScript.type === 'vertex') {
-	shaderType = gl.VERTEX_SHADER;
-} else if (shaderScript.type === 'fragment') {
-	shaderType = gl.FRAGMENT_SHADER;
-} else if (shaderType !== gl.VERTEX_SHADER && shaderType !== gl.FRAGMENT_SHADER) {
-	throw ('*** Error: unknown shader type');
-}
+	if (shaderScript.type === 'vertex') {
+		shaderType = gl.VERTEX_SHADER;
+	} else if (shaderScript.type === 'fragment') {
+		shaderType = gl.FRAGMENT_SHADER;
+	} else if (shaderType !== gl.VERTEX_SHADER && shaderType !== gl.FRAGMENT_SHADER) {
+		throw ('*** Error: unknown shader type');
+	}
 
-  return loadShader(gl, shaderSource, shaderType);
+	return loadShader(gl, shaderSource, shaderType);
 }
 
 
@@ -75,4 +73,38 @@ function createProgram(gl, shaders) {
   return program;
 }
 
-document.utilities = {createProgramFromScripts};
+function resizeCanvasToDisplaySize(canvas, multiplier) {
+    multiplier = multiplier || 1;
+    const width  = canvas.clientWidth  * multiplier | 0;
+    const height = canvas.clientHeight * multiplier | 0;
+    if (canvas.width !== width ||  canvas.height !== height) {
+      canvas.width  = width;
+      canvas.height = height;
+      return true;
+    }
+    return false;
+}
+
+function resizeCanvas(canvas) {
+	console.log(canvas.clientHeight);
+    canvas.style.height = (canvas.clientWidth * 3 / 4) + 'px';
+	console.log(canvas.clientWidth);
+	console.log(canvas.clientHeight);
+
+
+}
+
+function radToDeg(r) {
+    return r * 180 / Math.PI;
+  }
+
+  function degToRad(d) {
+    return d * Math.PI / 180;
+  }
+
+export const utilities = {createProgramFromScripts, 
+							resizeCanvasToDisplaySize,
+							
+							radToDeg,
+							degToRad
+						};
