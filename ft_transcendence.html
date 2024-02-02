@@ -16,20 +16,38 @@
 		// Multiply the position by the matrix.
 		gl_Position = u_matrix * a_position;
 		//gl_Position = a_position;
-
-		
 		
 		}
 	</script>
 	<script type="fragment" id="arena-fragment">
 		precision mediump float;
 		
+		void main() {
+			gl_FragColor = vec4(0, 0, 0, 1);
+		}
+	</script>
+	<script type="vertex" id="ball-vertex">
+		attribute vec4 a_position;
+		uniform mat4 u_matrix;
+		
+		void main() {
+			gl_Position = u_matrix * a_position;
+			//gl_Position = a_position;
+			gl_PointSize = 1.0;
+		
+		}
+	</script>
+	<script type="fragment" id="ball-fragment">
+		precision mediump float;
 		
 		void main() {
 			gl_FragColor = vec4(0, 0, 0, 1);
-			
 		}
 	</script>
+	<script type="module" src="./init.js"></script>
 	<script type="module" src="./utilities.js"></script>
-	<script type="module" src="./canvas.js"></script>
+	<script type="module" src="./arena.js"></script>
+	<script type="module" src="./ball.js"></script>
+	<script type="module" src="./matrix.js"></script>
+	<script type="module" src="./gamePlay.js"></script>
 </html>

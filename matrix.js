@@ -1,99 +1,4 @@
-import {utilities} from "./utilities.js";
-
-
-
-function main() {
-	var rotation = [0,0];
-	const canvas = document.querySelector("#canvas");
-	const gl = canvas.getContext("webgl");
-	if (!gl) {
-		console.log("WebGL not supported in browser.")
-		return;
-	}
-	console.log(canvas.clientHeight);
-	console.log(canvas.clientWidth);
-	canvas.style.height = (canvas.clientWidth * 3 / 4) + 'px';
-	console.log(canvas.clientHeight);
-	console.log(canvas.clientWidth);
-	let program = utilities.createProgramFromScripts(gl, ['arena-vertex','arena-fragment']);
-	var positionLocation = gl.getAttribLocation(program, "a_position");
-	var matrixLocation = gl.getUniformLocation(program, "u_matrix");
-	var positionBuffer = gl.createBuffer();
-	// Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-	// Put geometry data into buffer
-	setGeometry(gl);
-	window.requestAnimationFrame(drawScene);
-	
-	
-	function drawScene() {
-		utilities.resizeCanvasToDisplaySize(gl.canvas);
-	
-		// Tell WebGL how to convert from clip space to pixels
-		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-	
-		// Clear the canvas AND the depth buffer.
-		// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
-		// Turn on culling. By default backfacing triangles
-		// will be culled.
-		gl.enable(gl.CULL_FACE);
-	
-		// Enable the depth buffer
-		gl.enable(gl.DEPTH_TEST);
-	
-		// Tell it to use our program (pair of shaders)
-		gl.useProgram(program);
-	
-		// Turn on the position attribute
-		gl.enableVertexAttribArray(positionLocation);
-	
-		// Bind the position buffer.
-		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-	
-		// Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-		var size = 3;          // 3 components per iteration
-		var type = gl.FLOAT;   // the data is 32bit floats
-		var normalize = false; // don't normalize the data
-		var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-		var offset = 0;        // start at the beginning of the buffer
-		gl.vertexAttribPointer(
-			positionLocation, size, type, normalize, stride, offset);
-			
-		//Compute the matrix
-		var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-		var zNear = 1;
-		var zFar = 2000;
-		var fieldOfViewRadians = utilities.degToRad(60);
-		
-		var radius = 50;
-		var matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-		// var cameraMatrix = m4.yRotation(utilities.degToRad(rotation[0]));
-    	matrix = m4.translate(matrix, 0, 0, -400);
-		
-		matrix = m4.yRotate(matrix, utilities.degToRad(rotation[0]));
-		
-		matrix = m4.translate(matrix, 0, 0, 400);
-		// var viewMatrix = m4.inverse(cameraMatrix);
-		// var viewPerspectiveMatrix = m4.multiply(matrix, viewMatrix);
-		console.log(matrix);
-		
-	
-		// Set the matrix.
-		gl.uniformMatrix4fv(matrixLocation, false, matrix);
-	
-		// Draw the geometry.
-		var primitiveType = gl.LINE_STRIP;
-		var offset = 0;
-		var count = 24;
-		gl.drawArrays(primitiveType, offset, count);
-		rotation[0] += 0.1;
-		requestAnimationFrame(drawScene);
-	}
-
-}
-
-var m4 = {
+export const m4 = {
 	yRotation: function(angleInRadians) {
 		var c = Math.cos(angleInRadians);
 		var s = Math.sin(angleInRadians);
@@ -107,6 +12,14 @@ var m4 = {
 	  },
 	yRotate: function(m, angleInRadians) {
 		return m4.multiply(m, m4.yRotation(angleInRadians));
+	  },
+	identity: function() {
+		return [
+		  1, 0, 0,0,
+		  0, 1, 0,0,
+		  0, 0, 1,0,
+		  0, 0, 0,1
+		];
 	  },
 	inverse: function(m) {
 		var m00 = m[0 * 4 + 0];
@@ -268,56 +181,3 @@ var m4 = {
 		];
 	  }
 }
-
-function setGeometry(gl) {
-	gl.bufferData(
-		gl.ARRAY_BUFFER,
-		// new Float32Array([
-		// 	-200, 200, -500,
-		// 	-200, -200, -500,
-		// 	-200, -200, -500,
-		// 	200, -200, -500,
-			
-			
-			
-
-		// ]),
-		new Float32Array([
-			-125, 80,-200,
-			125, 80,-200,
-			125, 80,-200,
-			125,-80,-200,
-			125,-80,-200,
-			-125,-80,-200,
-			-125,-80,-200,
-			-125,80,-200,
-
-			-125,80,-200,
-			-125,80,-800,
-			-125,80,-800,
-			-125,-80,-800,
-			-125,-80,-800,
-			-125,-80,-200,
-
-			-125,-80,-800,
-			125,-80,-800,
-			125,-80,-800,
-			125,80,-800,
-			125,80,-800,
-			-125,80,-800,
-
-			125,80,-800,
-			125,80,-200,
-			125,-80,-200,
-			125,-80,-800,
-			
-		]),
-		gl.STATIC_DRAW);
-  }
-
-  
-
-  
-
-
-main();
